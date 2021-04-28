@@ -2,27 +2,28 @@ package xyz.damt.api;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
+import xyz.damt.handlers.VerificationHandler;
 
 import java.util.UUID;
 
 public class NameMCAPI {
 
-    private final NameMC nameMC;
+    private final VerificationHandler verificationHandler;
 
-    public NameMCAPI() {
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+    public NameMCAPI(NameMC nameMC) {
+        this.verificationHandler = nameMC.getHandlerManager().getHandler(VerificationHandler.class);
     }
 
     public void addVerify(UUID uuid) {
-        this.nameMC.getVerificationHandler().addUser(uuid);
+        verificationHandler.containsUser(uuid);
     }
 
     public void removeVerify(UUID uuid) {
-        this.nameMC.getVerificationHandler().removeUser(uuid);
+        verificationHandler.getLikedUsers().remove(uuid);
     }
 
     public boolean isVerified(UUID uuid) {
-        return this.nameMC.getVerificationHandler().containsUser(uuid);
+        return verificationHandler.getLikedUsers().contains(uuid);
     }
 
 }

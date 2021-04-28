@@ -6,40 +6,38 @@ import xyz.damt.api.NameMCAPI;
 import xyz.damt.commands.NameMCCommand;
 import xyz.damt.commands.VerifyCommand;
 import xyz.damt.commands.framework.BaseCommand;
-import xyz.damt.config.ConfigHandler;
+import xyz.damt.handler.HandlerManager;
+import xyz.damt.handler.IHandler;
 import xyz.damt.handlers.VerificationHandler;
 import xyz.damt.placeholder.PlaceHolderHook;
 import xyz.damt.util.CC;
+import xyz.damt.util.Config;
 
 import java.util.Arrays;
 
+@Getter
 public final class NameMC extends JavaPlugin {
 
-    @Getter private NameMCAPI nameMCAPI;
-
-    @Getter private VerificationHandler verificationHandler;
-    @Getter private ConfigHandler configHandler;
-
-    @Override
-    public void onLoad() {
-        this.saveDefaultConfig();
-    }
+    private NameMCAPI nameMCAPI;
+    private HandlerManager handlerManager;
+    private final Config config = new Config("config", this);
+    private final Config messages = new Config("messages", this);
 
     @Override
     public void onEnable() {
-        this.configHandler = new ConfigHandler();
-        this.verificationHandler = new VerificationHandler();
-        this.nameMCAPI = new NameMCAPI();
+        this.handlerManager = new HandlerManager();
 
-        this.getServer().getScheduler().runTaskAsynchronously(this, () -> this.verificationHandler.load());
+        this.handlerManager.registerHandler(new VerificationHandler(this));
+
+        this.nameMCAPI = new NameMCAPI(this);
 
         Arrays.asList(
-                new NameMCCommand(),
-                new VerifyCommand()
+                new NameMCCommand(this),
+                new VerifyCommand(this)
         ).forEach(BaseCommand::register);
 
-        if (getConfigHandler().getSettingsHandler().USE_PLACEHOLDER_API) {
-            if (new PlaceHolderHook().register()) {
+        if (this.config.getBoolean("settings.placeholder-api")) {
+            if (new PlaceHolderHook(this).register()) {
                 getServer().getConsoleSender().sendMessage(CC.translate("&7[&dNameMC&7] &aHooked up with PlaceHolderAPI"));
                 getServer().getConsoleSender().sendMessage(CC.translate("&aAvailable PlaceHolders &7- &f%namemc_verified%,"));
             } else {
@@ -53,7 +51,7 @@ public final class NameMC extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.verificationHandler.save();
+        this.getHandlerManager().getHandlers().forEach(IHandler::unload);
     }
 
 }

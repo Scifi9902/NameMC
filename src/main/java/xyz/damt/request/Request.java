@@ -20,8 +20,6 @@ public class Request {
     private final UUID uuid;
     private final String nameMCServerIP;
 
-    private final Executor asyncThreadChecker = Executors.newFixedThreadPool(1);
-
     public Request(UUID uuid, String nameMCServerIP) {
         this.uuid = uuid;
         this.nameMCServerIP = nameMCServerIP;

@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
 import xyz.damt.api.events.AdminAddVerifyEvent;
 import xyz.damt.api.events.AdminRemoveVerifyEvent;
+import xyz.damt.handlers.VerificationHandler;
 
 import java.util.Objects;
 
@@ -14,11 +15,14 @@ public class AdminRemoveSubCommand extends xyz.damt.commands.framework.SubComman
 
     private final NameMC nameMC;
 
-    public AdminRemoveSubCommand() {
-        super("remove", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().ADMIN_VERIFY_COMMAND_PERMISSION,
+    private final VerificationHandler verificationHandler;
+
+    public AdminRemoveSubCommand(NameMC nameMC) {
+        super("remove", nameMC.getConfig().getString("admin.verify.access"),
                 "/namemc remove <user>", "");
 
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+        this.nameMC = nameMC;
+        this.verificationHandler = this.nameMC.getHandlerManager().getHandler(VerificationHandler.class);
     }
 
     @Override
@@ -29,21 +33,21 @@ public class AdminRemoveSubCommand extends xyz.damt.commands.framework.SubComman
         }
 
         if (args[1].isEmpty()) {
-            sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().INVALID_VALUE);
+            sender.sendMessage(nameMC.getMessages().getString("messages.invalid-value"));
             return;
         }
 
         OfflinePlayer player = nameMC.getServer().getOfflinePlayer(args[1]);
 
-        if (!nameMC.getVerificationHandler().containsUser(player.getUniqueId())) {
-            sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_IS_NOT_VERIFIED.replace("{user}", Objects.requireNonNull(player.getName())));
+        if (!verificationHandler.containsUser(player.getUniqueId())) {
+            sender.sendMessage(nameMC.getMessages().getString("messages.admin.is-not-verified").replace("{user}", Objects.requireNonNull(player.getName())));
             return;
         }
 
         nameMC.getServer().getPluginManager().callEvent(new AdminRemoveVerifyEvent(sender, player.getUniqueId()));
-        nameMC.getVerificationHandler().removeUser(player.getUniqueId());
+        verificationHandler.getLikedUsers().remove(player.getUniqueId());
 
-        sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_REMOVE_MESSAGE.replace("{user}", Objects.requireNonNull(player.getName())));
+        sender.sendMessage(nameMC.getMessages().getString("messages.admin.remove-message").replace("{user}", Objects.requireNonNull(player.getName())));
     }
 
 }

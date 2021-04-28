@@ -4,13 +4,14 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
+import xyz.damt.handlers.VerificationHandler;
 
 public class PlaceHolderHook extends PlaceholderExpansion {
 
     private final NameMC nameMC;
 
-    public PlaceHolderHook() {
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+    public PlaceHolderHook(NameMC nameMC) {
+        this.nameMC = nameMC;
     }
 
     @Override
@@ -36,7 +37,7 @@ public class PlaceHolderHook extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player p, String params) {
         if (params.equalsIgnoreCase("verified")) {
-            return nameMC.getVerificationHandler().containsUser(p.getUniqueId()) ? "Yes" : "No";
+            return nameMC.getHandlerManager().getHandler(VerificationHandler.class).containsUser(p.getUniqueId()) ? "Yes" : "No";
         }
         return null;
     }

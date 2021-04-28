@@ -7,28 +7,30 @@ import xyz.damt.commands.framework.BaseCommand;
 import xyz.damt.commands.sub.*;
 import xyz.damt.util.CC;
 
+import javax.print.attribute.standard.JobName;
+
 public class NameMCCommand extends BaseCommand {
 
     private final NameMC nameMC;
 
-    public NameMCCommand() {
-        super("namemc", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().ADMIN_VERIFY_COMMAND_PERMISSION, "/namemc");
+    public NameMCCommand(NameMC nameMC) {
+        super(nameMC, "namemc", nameMC.getConfig().getString("admin.verify.access"), "/namemc");
 
-        this.getSubCommands().add(new AdminStatusSubCommand());
-        this.getSubCommands().add(new AdminAddSubCommand());
-        this.getSubCommands().add(new AdminRemoveSubCommand());
-        this.getSubCommands().add(new AdminListSubCommand());
-        this.getSubCommands().add(new AdminRemoveAllSubCommand());
-        this.getSubCommands().add(new AdminReloadSubCommand());
-
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+        this.nameMC = nameMC;
         this.playerOnly = false;
+
+        this.getSubCommands().add(new AdminStatusSubCommand(nameMC));
+        this.getSubCommands().add(new AdminAddSubCommand(nameMC));
+        this.getSubCommands().add(new AdminRemoveSubCommand(nameMC));
+        this.getSubCommands().add(new AdminListSubCommand(nameMC));
+        this.getSubCommands().add(new AdminRemoveAllSubCommand(nameMC));
+        this.getSubCommands().add(new AdminReloadSubCommand(nameMC));
+
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        nameMC.getConfigHandler().getMessageHandler().ADMIN_WRONG_USAGE.forEach(s -> {
-            sender.sendMessage(CC.translate(s));
-        });
+        CC.translate(this.nameMC.getMessages().getStringList("messages.admin.wrong-usage"))
+                .forEach(sender::sendMessage);
     }
 }

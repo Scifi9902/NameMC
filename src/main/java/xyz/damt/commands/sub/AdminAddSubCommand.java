@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
 import xyz.damt.api.events.AdminAddVerifyEvent;
+import xyz.damt.handlers.VerificationHandler;
 import xyz.damt.util.CC;
 
 import java.util.Objects;
@@ -14,11 +15,14 @@ public class AdminAddSubCommand extends xyz.damt.commands.framework.SubCommand {
 
     private final NameMC nameMC;
 
-    public AdminAddSubCommand() {
-        super("add", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().ADMIN_VERIFY_COMMAND_PERMISSION,
+    private final VerificationHandler verificationHandler;
+
+    public AdminAddSubCommand(NameMC nameMC) {
+        super("add", nameMC.getConfig().getString("admin.verify.access"),
                 "/namemc add <user>", "");
 
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+        this.nameMC = nameMC;
+        this.verificationHandler = this.nameMC.getHandlerManager().getHandler(VerificationHandler.class);
     }
 
     @Override
@@ -29,21 +33,21 @@ public class AdminAddSubCommand extends xyz.damt.commands.framework.SubCommand {
         }
 
         if (args[1].isEmpty()) {
-            sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().INVALID_VALUE);
+            sender.sendMessage(this.nameMC.getMessages().getString("messages.invalid-value"));
             return;
         }
 
         OfflinePlayer player = nameMC.getServer().getOfflinePlayer(args[1]);
 
-        if (nameMC.getVerificationHandler().containsUser(player.getUniqueId())) {
-            sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_ALREADY_VERIFIED.replace("{user}", Objects.requireNonNull(player.getName())));
+        if (verificationHandler.containsUser(player.getUniqueId())) {
+            sender.sendMessage(nameMC.getMessages().getString("messages.admin.already-verified").replace("{user}", Objects.requireNonNull(player.getName())));
             return;
         }
 
         nameMC.getServer().getPluginManager().callEvent(new AdminAddVerifyEvent(sender, player.getUniqueId()));
-        nameMC.getVerificationHandler().addUser(player.getUniqueId());
+        verificationHandler.getLikedUsers().add(player.getUniqueId());
 
-        sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_ADD_MESSAGE.replace("{user}", Objects.requireNonNull(player.getName())));
+        sender.sendMessage(nameMC.getMessages().getString("messages.admin.add-message").replace("{user}", Objects.requireNonNull(player.getName())));
     }
 
 }

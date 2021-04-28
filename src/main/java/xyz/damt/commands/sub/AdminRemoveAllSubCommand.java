@@ -5,16 +5,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
 import xyz.damt.api.events.AdminRemoveAllVerifyEvent;
+import xyz.damt.handlers.VerificationHandler;
 
 public class AdminRemoveAllSubCommand extends xyz.damt.commands.framework.SubCommand {
 
     private final NameMC nameMC;
 
-    public AdminRemoveAllSubCommand() {
-        super("removeall", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().ADMIN_VERIFY_COMMAND_PERMISSION,
+    private final VerificationHandler verificationHandler;
+
+    public AdminRemoveAllSubCommand(NameMC nameMC) {
+        super("removeall", nameMC.getConfig().getString("admin.verify.access"),
                 "/namemc removeall", "");
 
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+        this.nameMC = nameMC;
+        this.verificationHandler = this.nameMC.getHandlerManager().getHandler(VerificationHandler.class);
     }
 
     @Override
@@ -24,14 +28,14 @@ public class AdminRemoveAllSubCommand extends xyz.damt.commands.framework.SubCom
             return;
         }
 
-        if (nameMC.getVerificationHandler().isEmpty()) {
-            sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_NO_VERIFICATIONS);
+        if (verificationHandler.getLikedUsers().isEmpty()) {
+            sender.sendMessage(nameMC.getMessages().getString("messages.admin.no-verifications"));
             return;
         }
 
         nameMC.getServer().getPluginManager().callEvent(new AdminRemoveAllVerifyEvent(sender));
-        nameMC.getVerificationHandler().removeAll();
+        verificationHandler.removeAll();
 
-        sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_REMOVE_ALL_MESSAGE);
+        sender.sendMessage(nameMC.getMessages().getString("messages.admin.remove-all-message"));
     }
 }

@@ -9,11 +9,11 @@ public class AdminReloadSubCommand extends xyz.damt.commands.framework.SubComman
 
     private final NameMC nameMC;
 
-    public AdminReloadSubCommand() {
-        super("reload", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().ADMIN_VERIFY_COMMAND_PERMISSION,
+    public AdminReloadSubCommand(NameMC nameMC) {
+        super("reload", nameMC.getConfig().getString("admin.verify.access"),
                 "/namemc reload", "");
 
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+        this.nameMC = nameMC;
     }
 
     @Override
@@ -23,9 +23,9 @@ public class AdminReloadSubCommand extends xyz.damt.commands.framework.SubComman
             return;
         }
 
-        nameMC.reloadConfig();
-        nameMC.getConfigHandler().reload();
+        nameMC.getConfig().reload();
+        nameMC.getMessages().reload();
 
-        sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_RELOAD_MESSAGE);
+        sender.sendMessage(nameMC.getMessages().getString("messages.admin.reload-message"));
     }
 }

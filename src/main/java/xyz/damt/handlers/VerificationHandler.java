@@ -1,5 +1,6 @@
 package xyz.damt.handlers;
 
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -7,48 +8,28 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
+import xyz.damt.handler.IHandler;
 import xyz.damt.util.CC;
 
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
-public class VerificationHandler {
+@Getter
+public class VerificationHandler implements IHandler {
 
     private final Set<UUID> likedUsers;
     private final NameMC nameMC;
 
-    private final Executor newThread = Executors.newFixedThreadPool(1);
 
-    public VerificationHandler() {
+    public VerificationHandler(NameMC nameMC) {
+        this.nameMC = nameMC;
         this.likedUsers = new HashSet<>();
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
     }
 
     public void load() {
-        this.nameMC.getConfig().getStringList("data.liked").forEach(s -> {
-            likedUsers.add(UUID.fromString(s));
-        });
-    }
-
-    public boolean isEmpty() {
-        return this.likedUsers.isEmpty();
-    }
-
-    public int getSize() {
-        return this.likedUsers.size();
-    }
-
-    public Set<UUID> getVerifiedUsers() {
-        return this.likedUsers;
-    }
-
-    public void addUser(UUID uuid) {
-        newThread.execute(() -> likedUsers.add(uuid));
-    }
-
-    public void removeUser(UUID uuid) {
-        newThread.execute(() -> likedUsers.remove(uuid));
+        this.nameMC.getConfig().getStringList("data.liked").forEach(s -> likedUsers.add(UUID.fromString(s)));
     }
 
     public boolean containsUser(UUID uuid) {
@@ -56,10 +37,12 @@ public class VerificationHandler {
     }
 
     public void giveRewards(Player player) {
+
+        //ToDo clean-up
         List<String> places = new ArrayList<>();
 
         Objects.requireNonNull(nameMC.getConfig().getConfigurationSection("rewards")).getKeys(false).forEach(reward -> {
-            if (!nameMC.getConfigHandler().getSettingsHandler().RANDOMIZE_REWARDS) {
+            if (!nameMC.getConfig().getBoolean("settings.randomize-rewards")) {
 
                 String path = "rewards." + reward + ".";
                 if (nameMC.getConfig().getBoolean(path + "item.enabled")) {
@@ -93,7 +76,7 @@ public class VerificationHandler {
             places.add("rewards." + reward);
 
             if (!places.isEmpty()) {
-                for (int i = 0; i < nameMC.getConfigHandler().getSettingsHandler().AMOUNT_OF_REWARDS; i++) {
+                for (int i = 0; i < nameMC.getConfig().getInt("settings.amount-of-rewards"); i++) {
                     int index = new Random().nextInt(places.size());
 
                     String item = places.get(index);
@@ -130,20 +113,13 @@ public class VerificationHandler {
     }
 
     public void removeAll() {
-        newThread.execute(() -> {
             likedUsers.clear();
             nameMC.getConfig().set("data.liked", null);
             nameMC.saveConfig();
-        });
     }
 
     public void save() {
-        newThread.execute(() -> {
-            List<String> strings = new ArrayList<>();
-            likedUsers.forEach(uuid -> strings.add(uuid.toString()));
-            nameMC.getConfig().set("data.liked", strings);
+            nameMC.getConfig().set("data.liked", likedUsers.stream().map(UUID::toString).collect(Collectors.toList()));
             nameMC.saveConfig();
-        });
     }
-
 }

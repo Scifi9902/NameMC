@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
 import xyz.damt.api.events.PlayerVerifyEvent;
 import xyz.damt.commands.framework.BaseCommand;
+import xyz.damt.handlers.VerificationHandler;
 import xyz.damt.request.Request;
 
 import java.util.logging.Level;
@@ -15,33 +16,36 @@ public class VerifyCommand extends BaseCommand {
 
     private final NameMC nameMC;
 
-    public VerifyCommand() {
-        super("verify", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().VERIFY_COMMAND_PERMISSION,
+    private final VerificationHandler verificationHandler;
+
+    public VerifyCommand(NameMC nameMC) {
+        super(nameMC,"verify", nameMC.getConfig().getString("settings.verify-command-permission"),
                 "/verify");
 
+        this.nameMC = nameMC;
+        this.verificationHandler = this.nameMC.getHandlerManager().getHandler(VerificationHandler.class);
         this.playerOnly = true;
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
-        Request request = new Request(player.getUniqueId(), nameMC.getConfigHandler().getSettingsHandler().SERVER_IP);
+        Request request = new Request(player.getUniqueId(), nameMC.getConfig().getString("settings.server-ip"));
 
-        if (nameMC.getVerificationHandler().containsUser(player.getUniqueId())) {
-            player.sendMessage(nameMC.getConfigHandler().getMessageHandler().USER_ALREADY_LIKED);
+        if (verificationHandler.containsUser(player.getUniqueId())) {
+            player.sendMessage(this.nameMC.getMessages().getString("messages.user.already-liked"));
             return;
         }
 
         if (!request.hasLiked()) {
-            player.sendMessage(nameMC.getConfigHandler().getMessageHandler().USER_DID_NOT_LIKE);
+            player.sendMessage(nameMC.getMessages().getString("messages.user.did-not-like"));
             return;
         }
 
         nameMC.getServer().getPluginManager().callEvent(new PlayerVerifyEvent(player));
-        nameMC.getVerificationHandler().addUser(player.getUniqueId());
+        verificationHandler.getLikedUsers().add(player.getUniqueId());
 
-        player.sendMessage(nameMC.getConfigHandler().getMessageHandler().USER_HAS_LIKED);
-        nameMC.getVerificationHandler().giveRewards(player);
+        player.sendMessage(nameMC.getMessages().getString("messages.user.has-liked"));
+        verificationHandler.giveRewards(player);
     }
 }

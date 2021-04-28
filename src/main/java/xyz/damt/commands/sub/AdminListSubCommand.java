@@ -5,16 +5,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
 import xyz.damt.api.events.AdminRemoveAllVerifyEvent;
+import xyz.damt.handlers.VerificationHandler;
 
 public class AdminListSubCommand extends xyz.damt.commands.framework.SubCommand {
 
     private final NameMC nameMC;
 
-    public AdminListSubCommand() {
-        super("list", JavaPlugin.getPlugin(NameMC.class).getConfigHandler().getSettingsHandler().ADMIN_VERIFY_COMMAND_PERMISSION,
+    private final VerificationHandler verificationHandler;
+
+    public AdminListSubCommand(NameMC nameMC) {
+        super("list", nameMC.getConfig().getString("admin.verify.access"),
                 "/namemc list", "");
 
-        this.nameMC = JavaPlugin.getPlugin(NameMC.class);
+        this.nameMC = nameMC;
+        this.verificationHandler = this.nameMC.getHandlerManager().getHandler(VerificationHandler.class);
     }
 
     @Override
@@ -24,16 +28,17 @@ public class AdminListSubCommand extends xyz.damt.commands.framework.SubCommand 
             return;
         }
 
-        if (nameMC.getVerificationHandler().isEmpty()) {
-            sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_NO_VERIFICATIONS);
+        if (verificationHandler.getLikedUsers().isEmpty()) {
+            sender.sendMessage(nameMC.getMessages().getString("messages.admin.no-verifications"));
             return;
         }
 
         StringBuilder builder = new StringBuilder();
-        nameMC.getVerificationHandler().getVerifiedUsers().forEach(uuid -> {
-            builder.append(nameMC.getServer().getOfflinePlayer(uuid).getName()).append(",");
-        });
 
-        sender.sendMessage(nameMC.getConfigHandler().getMessageHandler().ADMIN_LIST_MESSAGE.replace("{users}", builder.toString()));
+        verificationHandler.getLikedUsers().forEach(uuid -> builder
+                .append(nameMC.getServer().getOfflinePlayer(uuid).getName())
+                .append(", "));
+
+        sender.sendMessage(nameMC.getMessages().getString("messages.admin.list-message").replace("{users}", builder.toString()));
     }
 }

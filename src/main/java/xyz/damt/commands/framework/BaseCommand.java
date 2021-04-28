@@ -24,9 +24,10 @@ public abstract class BaseCommand implements CommandExecutor {
     protected boolean playerOnly = false;
 
     private final Set<SubCommand> subCommands = new HashSet<>();
-    private final NameMC nameMC = JavaPlugin.getPlugin(NameMC.class);
+    private final NameMC nameMC;
 
-    public BaseCommand(String name, String permission, String usage) {
+    public BaseCommand(NameMC nameMC, String name, String permission, String usage) {
+        this.nameMC = nameMC;
         this.name = name;
         this.permission = permission;
         this.usage = usage;
@@ -42,7 +43,7 @@ public abstract class BaseCommand implements CommandExecutor {
         }
 
         if(permission != null && !commandSender.hasPermission(permission)) {
-            commandSender.sendMessage(nameMC.getConfigHandler().getMessageHandler().NO_PERMISSION);
+            commandSender.sendMessage(nameMC.getConfig().getString("messages.no-permission"));
             return false;
         }
 
@@ -56,12 +57,12 @@ public abstract class BaseCommand implements CommandExecutor {
         SubCommand subCommand = getSubCommand(subCommandName);
 
         if(subCommand == null){
-            commandSender.sendMessage(nameMC.getConfigHandler().getMessageHandler().INVALID_VALUE);
+            commandSender.sendMessage(nameMC.getMessages().getString("messages.invalid-value"));
             return false;
         }
 
         if(subCommand.getPermission() != null && !commandSender.hasPermission(subCommand.getPermission())){
-            commandSender.sendMessage(nameMC.getConfigHandler().getMessageHandler().NO_PERMISSION);
+            commandSender.sendMessage(nameMC.getConfig().getString("messages.no-permission"));
             return false;
         }
 
