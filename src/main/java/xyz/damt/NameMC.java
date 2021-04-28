@@ -8,7 +8,7 @@ import xyz.damt.commands.VerifyCommand;
 import xyz.damt.commands.framework.BaseCommand;
 import xyz.damt.handler.HandlerManager;
 import xyz.damt.handler.IHandler;
-import xyz.damt.handlers.VerificationHandler;
+import xyz.damt.handler.impl.VerificationHandler;
 import xyz.damt.placeholder.PlaceHolderHook;
 import xyz.damt.util.CC;
 import xyz.damt.util.Config;

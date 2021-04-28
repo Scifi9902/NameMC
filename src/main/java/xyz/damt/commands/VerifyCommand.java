@@ -2,15 +2,11 @@ package xyz.damt.commands;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
 import xyz.damt.api.events.PlayerVerifyEvent;
 import xyz.damt.commands.framework.BaseCommand;
-import xyz.damt.handlers.VerificationHandler;
+import xyz.damt.handler.impl.VerificationHandler;
 import xyz.damt.request.Request;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class VerifyCommand extends BaseCommand {
 

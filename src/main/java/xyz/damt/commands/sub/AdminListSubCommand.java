@@ -2,10 +2,8 @@ package xyz.damt.commands.sub;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
-import xyz.damt.api.events.AdminRemoveAllVerifyEvent;
-import xyz.damt.handlers.VerificationHandler;
+import xyz.damt.handler.impl.VerificationHandler;
 
 public class AdminListSubCommand extends xyz.damt.commands.framework.SubCommand {
 

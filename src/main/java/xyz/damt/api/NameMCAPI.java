@@ -1,8 +1,7 @@
 package xyz.damt.api;
 
-import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
-import xyz.damt.handlers.VerificationHandler;
+import xyz.damt.handler.impl.VerificationHandler;
 
 import java.util.UUID;
 

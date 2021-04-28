@@ -2,9 +2,8 @@ package xyz.damt.placeholder;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import xyz.damt.NameMC;
-import xyz.damt.handlers.VerificationHandler;
+import xyz.damt.handler.impl.VerificationHandler;
 
 public class PlaceHolderHook extends PlaceholderExpansion {
 

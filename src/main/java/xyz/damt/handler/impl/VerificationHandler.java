@@ -1,4 +1,4 @@
-package xyz.damt.handlers;
+package xyz.damt.handler.impl;
 
 import lombok.Getter;
 import org.bukkit.Material;
